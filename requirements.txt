@@ -3,3 +3,5 @@ Flask>=1.0.2
 pymorphy2>=0.8
 pymorphy2-dicts>=2
 pandas>=0.23.1
+stop-words>=2018.7.23
+scipy>=1.1
