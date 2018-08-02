@@ -7,26 +7,34 @@ from sklearn.externals import joblib
 
 app = Flask(__name__)
 
-clf = joblib.load('static/itil-multitarget.pkl')
-transformer = joblib.load('static/itil-tfidf.pkl')
-transformer._validate_vocabulary()
-
 app.config['UPLOAD_FOLDER'] = 'data/'
+TRANSFORMER_PATH = 'static/itil-tfidf.pkl'
+CLASSIFIER_PATH = 'static/itil-multitarget.pkl'
+
+clf = joblib.load(CLASSIFIER_PATH)
+transformer = joblib.load(TRANSFORMER_PATH)
+transformer._validate_vocabulary()
 
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    j = request.json
-    s = utils.preprocess(j['title'])
-    features = transformer.transform([s])
-    prediction = clf.predict_proba(features.reshape(1, -1))
-    rdata = dict()
+    response_data = []
 
-    for i in range(len(clf.estimators_)):
-        indmax = argmax(prediction[i])
-        rdata[clf.estimators_[i].classes_[indmax]] = prediction[i][0][indmax]
+    for request_row in request.json:
 
-    return jsonify({'prediction': rdata})
+        s = utils.preprocess(request_row['title'])
+        features = transformer.transform([s])
+        prediction = clf.predict_proba(features.reshape(1, -1))
+
+        response_row = {"id": request_row['id'], "prediction": dict()}
+
+        for i in range(len(clf.estimators_)):
+            indmax = argmax(prediction[i])
+            response_row['prediction'][clf.estimators_[i].classes_[indmax]] = round(prediction[i][0][indmax], 5)
+
+        response_data.append(response_row)
+
+    return jsonify(response_data)
 
 
 @app.route('/upload', methods=['GET', 'POST', 'DELETE'])
@@ -60,8 +68,8 @@ def train():
     fname = os.path.join(app.config['UPLOAD_FOLDER'], j['file_data'])
     tfidf, model = utils.train(fname)
 
-    joblib.dump(tfidf, os.path.join('static/itil-tfidf.pkl'))
-    joblib.dump(model, os.path.join('static/itil-multinb.pkl'))
+    joblib.dump(tfidf, os.path.join(TRANSFORMER_PATH))
+    joblib.dump(model, os.path.join(CLASSIFIER_PATH))
 
     return 'success'
 

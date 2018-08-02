@@ -6,6 +6,7 @@ from pymorphy2.shapes import is_punctuation
 from stop_words import get_stop_words
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn.multioutput import MultiOutputClassifier
 
 morph = pymorphy2.MorphAnalyzer()
 stop_words = get_stop_words('russian')
@@ -45,9 +46,11 @@ def train(file_data):
 
     tfidf = TfidfVectorizer(sublinear_tf=True, min_df=5, norm='l2', ngram_range=(1, 2))
     features = tfidf.fit_transform(df.title).toarray()
-    labels = df['specialist']
+    labels = df[['specialist', 'category', 'analytics1', 'analytics2', 'analytics3']]
 
     model = MultinomialNB()
-    model.fit(features, labels)
+
+    multi_target_nb = MultiOutputClassifier(model, n_jobs=-1)
+    multi_target_nb.fit(features, labels)
 
     return tfidf, model
