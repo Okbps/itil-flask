@@ -27,8 +27,13 @@ def preprocess(s):
     s = lemmatize(s)
     return s
 
+def drop_below(df, name, quantile):
+    grouped = df[name].value_counts()
+    grouped = grouped[grouped >= grouped.quantile(q=quantile)]
+    return df[df[name].isin(grouped.index.tolist())]
+
 def train(file_data):
-    df = pd.read_csv(file_data, sep=';')
+    df = pd.read_csv(file_data, sep=',')
     df = df.dropna()
 
     df['specialist'].replace(['Руководители службы Service Desk', 'Шкурупий Денис'], 'Манюхин Андрей', inplace=True)
@@ -36,11 +41,11 @@ def train(file_data):
     df['specialist'].replace('Талаева Вера', 'Кропис Юлия', inplace=True)
     df['specialist'].replace('Быков Вадим', 'Полегошко Андрей', inplace=True)
 
-    grouped = df['specialist'].value_counts()
-    users_minor = grouped[grouped <= 10]
-
-    for um in users_minor.index:
-        df = df.loc[df['specialist'] != um]
+    df = drop_below(df, 'specialist', 0.25)
+    df = drop_below(df, 'analytics1', 0.50)
+    df = drop_below(df, 'analytics2', 0.85)
+    df = drop_below(df, 'analytics3', 0.85)
+    df = drop_below(df, 'category', 0.75)
 
     df['title'] = df['title'].apply(lambda x: preprocess(x))
 
