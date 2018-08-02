@@ -1,12 +1,13 @@
 import utils
 import os
+from numpy import argmax
 from flask import Flask, request, jsonify
 from sklearn.externals import joblib
 
 
 app = Flask(__name__)
 
-clf = joblib.load('static/itil-multinb.pkl')
+clf = joblib.load('static/itil-multitarget.pkl')
 transformer = joblib.load('static/itil-tfidf.pkl')
 transformer._validate_vocabulary()
 
@@ -18,8 +19,14 @@ def predict():
     j = request.json
     s = utils.preprocess(j['title'])
     features = transformer.transform([s])
-    prediction = clf.predict(features)
-    return jsonify({'prediction': str(prediction[0])})
+    prediction = clf.predict_proba(features.reshape(1, -1))
+    rdata = dict()
+
+    for i in range(len(clf.estimators_)):
+        indmax = argmax(prediction[i])
+        rdata[clf.estimators_[i].classes_[indmax]] = prediction[i][0][indmax]
+
+    return jsonify({'prediction': rdata})
 
 
 @app.route('/upload', methods=['GET', 'POST', 'DELETE'])
