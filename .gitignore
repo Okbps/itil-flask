@@ -1,5 +1,4 @@
 /.idea
 __pycache__/
-/notebooks/.ipynb_checkpoints/
 !/notebooks/*.ipynb
-/data/.ipynb_checkpoints/itil-tickets-6-checkpoint.csv
+*.ipynb_checkpoints/*
