@@ -34,7 +34,9 @@ def predict():
         for i in range(len(clf.estimators_)):
             indmax = argmax(prediction[i][j])
             response_row["prediction"][settings.Y_COLS[i]] = {
-                clf.estimators_[i].classes_[indmax]: prediction[i][j][indmax]}
+                "value": clf.estimators_[i].classes_[indmax],
+                "prob": prediction[i][j][indmax]
+            }
 
         response_data.append(response_row)
 
