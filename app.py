@@ -4,13 +4,20 @@ import transformers
 import settings
 from numpy import argmax
 from pandas import DataFrame
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 
 
 app = Flask(__name__)
 
 clf = transformers.load(settings.CLASSIFIER_PATH)
 vec = transformers.load_transformer()
+
+
+@app.before_request
+def log_request_info():
+    # app.logger.debug('Headers: %s', request.headers)
+    # app.logger.debug('Body: %s', request.get_data())
+    pass
 
 
 @app.route('/predict', methods=['POST'])
@@ -53,7 +60,10 @@ def upload_file():
         return f.filename
 
     elif request.method == 'GET':
-        return jsonify(os.listdir(settings.UPLOAD_FOLDER))
+        if request.values.has_key('file'):
+            return send_file(os.path.join(settings.UPLOAD_FOLDER, request.values['file']), request.values['file'], as_attachment=True)
+        else:
+            return jsonify(os.listdir(settings.UPLOAD_FOLDER))
 
     elif request.method == 'DELETE':
         j = request.json
