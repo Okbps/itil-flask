@@ -3,13 +3,11 @@ ITIL Incident Classifier (Flask)
 POST http://127.0.0.1:5000/predict
 ----------------------------------
 
-Предсказать иницитора, услугу и аналитику по заголовку письма
+Предсказать аналитику по заголовку письма и инициатору
 
 #### Headers
 
-Content-Type
-
-application/json
+Content-Type: application/json
 
 #### Body
 
@@ -19,4 +17,68 @@ raw (application/json)
         {"id":"1", "title":"не проводится ТТН", "user":"Диспетчеры склада"},
         {"id":"2", "title":"1СРозница - отображение цены", "user":"Дубовик Вадим"} 
     ]
+
+-----
+POST http://127.0.0.1:5000/train
+----------------------------------
+
+Обучить классификатор на данных из файла
+
+#### Headers
+
+Content-Type: application/json
+
+#### Body
+
+raw (application/json)
+
+    {"file_data": "itil-tickets.csv"}
+    
+-----
+POST http://127.0.0.1:5000/upload
+----------------------------------
+
+Загрузить файл для обучения
+
+#### Headers
+
+Content-Type: application/x-www-form-urlencoded
+
+#### Body
+
+formdata
+
+    file
+    
+-----
+GET http://127.0.0.1:5000/upload
+----------------------------------
+
+Получить список загруженных файлов
+
+-----
+GET http://127.0.0.1:5000/upload?file=itil-tickets.csv
+----------------------------------
+
+Скачать загруженный файл
+
+-----
+DELETE http://127.0.0.1:5000/upload
+----------------------------------
+Удалить загруженные файлы
+
+#### Headers
+
+Content-Type: application/json
+
+#### Body
+
+raw (application/json)
+
+    [
+    "itil-tickets.csv"
+    ]
+        
+    
+
 
