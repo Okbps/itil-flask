@@ -42,11 +42,6 @@ def drop_below(df, name, quantile):
 def train(file_data):
     df = pd.read_csv(file_data, sep=',')
 
-    df['specialist'].replace(['Руководители службы Service Desk', 'Шкурупий Денис'], 'Манюхин Андрей', inplace=True)
-    df['specialist'].replace('Кухарчук Дмитрий', 'Сергиевич Юрий', inplace=True)
-    df['specialist'].replace('Талаева Вера', 'Кропис Юлия', inplace=True)
-    df['specialist'].replace('Быков Вадим', 'Полегошко Андрей', inplace=True)
-
     df = drop_below(df, 'specialist', 0.25)
     df = drop_below(df, 'analytics1', 0.50)
     df = drop_below(df, 'analytics2', 0.85)
