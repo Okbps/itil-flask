@@ -1,5 +1,0 @@
-flask:
-    build: .
-    container_name: itil-flask
-    ports:
-      - "5555:5000"
